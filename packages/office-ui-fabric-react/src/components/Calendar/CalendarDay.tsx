@@ -61,6 +61,7 @@ export interface ICalendarDayProps extends React.Props<CalendarDay> {
   workWeekDays?: DayOfWeek[];
   showCloseButton?: boolean;
   allFocusable?: boolean;
+  dayClassNames?: (date: Date) => string;
 }
 
 export interface ICalendarDayState {
@@ -272,6 +273,7 @@ export class CalendarDay extends BaseComponent<ICalendarDayProps, ICalendarDaySt
                           styles.dayWrapper,
                           'ms-DatePicker-day',
                           this._getHighlightedCornerStyle(weekCorners, dayIndex, weekIndex),
+                          this._setDayClassNames(day.originalDate),
                           {
                             ['ms-DatePicker-weekBackground ' + styles.weekBackground]:
                               day.isSelected && (dateRangeType === DateRangeType.Week || dateRangeType === DateRangeType.WorkWeek),
@@ -340,6 +342,12 @@ export class CalendarDay extends BaseComponent<ICalendarDayProps, ICalendarDaySt
     if (this.navigatedDay) {
       this.navigatedDay.tabIndex = 0;
       this.navigatedDay.focus();
+    }
+  }
+
+  private _setDayClassNames(date: Date) {
+    if (this.props.dayClassNames) {
+      return this.dayClassNames(date);
     }
   }
 

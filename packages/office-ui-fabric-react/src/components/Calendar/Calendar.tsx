@@ -134,7 +134,8 @@ export class Calendar extends BaseComponent<ICalendarProps, ICalendarState> impl
       className,
       showCloseButton,
       allFocusable,
-      yearPickerHidden
+      yearPickerHidden,
+      dayClassNames
     } = this.props;
     const nativeProps = getNativeProps(this.props, divProperties, ['value']);
 
@@ -188,6 +189,7 @@ export class Calendar extends BaseComponent<ICalendarProps, ICalendarState> impl
                     componentRef={this._dayPicker}
                     showCloseButton={showCloseButton}
                     allFocusable={allFocusable}
+                    dayClassNames={dayClassNames}
                   />
                 )}
                 {isDayPickerVisible && isMonthPickerVisible && <div className={styles.divider} />}
