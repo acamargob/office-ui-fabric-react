@@ -34,7 +34,7 @@ export interface ICalendarProps extends IBaseProps<ICalendar>, React.HTMLAttribu
   /**
    * Callback used to style days in calendar. For example, conditional highlighting
    */
-  dayClassNames?: (date: Date) => string;
+  onRenderDay?: (date: Date, internalRender: () => JSX.Element) => JSX.Element;
 
   /**
    * Whether the month picker is shown beside the day picker or hidden.

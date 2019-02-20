@@ -61,7 +61,7 @@ export interface ICalendarDayProps extends React.Props<CalendarDay> {
   workWeekDays?: DayOfWeek[];
   showCloseButton?: boolean;
   allFocusable?: boolean;
-  dayClassNames?: (date: Date) => string;
+  onRenderDay?: (date: Date, internalRender: () => JSX.Element) => JSX.Element;
 }
 
 export interface ICalendarDayState {
@@ -266,6 +266,7 @@ export class CalendarDay extends BaseComponent<ICalendarDayProps, ICalendarDaySt
                     )}
                   {week.map((day, dayIndex) => {
                     const isNavigatedDate = compareDates(navigatedDate, day.originalDate);
+                    const onRenderDay = this.props.onRenderDay || ((date, internalRender) => internalRender());
                     return (
                       <td
                         key={day.key}
@@ -273,7 +274,6 @@ export class CalendarDay extends BaseComponent<ICalendarDayProps, ICalendarDaySt
                           styles.dayWrapper,
                           'ms-DatePicker-day',
                           this._getHighlightedCornerStyle(weekCorners, dayIndex, weekIndex),
-                          this._setDayClassNames(day.originalDate),
                           {
                             ['ms-DatePicker-weekBackground ' + styles.weekBackground]:
                               day.isSelected && (dateRangeType === DateRangeType.Week || dateRangeType === DateRangeType.WorkWeek),
@@ -307,25 +307,27 @@ export class CalendarDay extends BaseComponent<ICalendarDayProps, ICalendarDaySt
                         }
                         role={'gridcell'}
                       >
-                        <button
-                          key={day.key + 'button'}
-                          className={css(styles.day, 'ms-DatePicker-day-button', {
-                            ['ms-DatePicker-day--disabled ' + styles.dayIsDisabled]: !day.isInBounds,
-                            ['ms-DatePicker-day--today ' + styles.dayIsToday]: day.isToday
-                          })}
-                          role={'button'}
-                          onKeyDown={this._onDayKeyDown(day.originalDate, weekIndex, dayIndex)}
-                          onClick={day.isInBounds ? day.onSelected : undefined}
-                          aria-label={dateTimeFormatter.formatMonthDayYear(day.originalDate, strings)}
-                          id={isNavigatedDate ? activeDescendantId : undefined}
-                          aria-selected={day.isInBounds ? day.isSelected : undefined}
-                          data-is-focusable={allFocusable || (day.isInBounds ? true : undefined)}
-                          ref={element => this._setDayRef(element, day, isNavigatedDate)}
-                          disabled={!allFocusable && !day.isInBounds}
-                          aria-disabled={!day.isInBounds}
-                        >
-                          <span aria-hidden="true">{dateTimeFormatter.formatDay(day.originalDate)}</span>
-                        </button>
+                        {onRenderDay(day.originalDate, () => (
+                          <button
+                            key={day.key + 'button'}
+                            className={css(styles.day, 'ms-DatePicker-day-button', {
+                              ['ms-DatePicker-day--disabled ' + styles.dayIsDisabled]: !day.isInBounds,
+                              ['ms-DatePicker-day--today ' + styles.dayIsToday]: day.isToday
+                            })}
+                            role={'button'}
+                            onKeyDown={this._onDayKeyDown(day.originalDate, weekIndex, dayIndex)}
+                            onClick={day.isInBounds ? day.onSelected : undefined}
+                            aria-label={dateTimeFormatter.formatMonthDayYear(day.originalDate, strings)}
+                            id={isNavigatedDate ? activeDescendantId : undefined}
+                            aria-selected={day.isInBounds ? day.isSelected : undefined}
+                            data-is-focusable={allFocusable || (day.isInBounds ? true : undefined)}
+                            ref={element => this._setDayRef(element, day, isNavigatedDate)}
+                            disabled={!allFocusable && !day.isInBounds}
+                            aria-disabled={!day.isInBounds}
+                          >
+                            <span aria-hidden="true">{dateTimeFormatter.formatDay(day.originalDate)}</span>
+                          </button>
+                        ))}
                       </td>
                     );
                   })}
@@ -342,12 +344,6 @@ export class CalendarDay extends BaseComponent<ICalendarDayProps, ICalendarDaySt
     if (this.navigatedDay) {
       this.navigatedDay.tabIndex = 0;
       this.navigatedDay.focus();
-    }
-  }
-
-  private _setDayClassNames(date: Date) {
-    if (this.props.dayClassNames) {
-      return this.dayClassNames(date);
     }
   }
 
